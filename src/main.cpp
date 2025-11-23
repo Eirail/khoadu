@@ -22,18 +22,16 @@ int speedright = 200;
 
 bool lineDebug = false;
 bool pidDebug = false;
-int countT = 0;
-int oldsensorRead[5] = {0, 0, 0, 0, 0};
 
 int k = 0;
 bool maze = false;
 
 void calculate_error()
 {
-  readSensorTreated(); // đọc cảm biến
+  readSensorTreated(); // Ä'á»c cáº£m biáº¿n
 
   if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 1))
-    error = 5;
+    error = 6;
   else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 1) && (sensor[4] == 1))
     error = 3;
   else if ((sensor[0] == 0) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 1) && (sensor[4] == 0))
@@ -49,20 +47,20 @@ void calculate_error()
   else if ((sensor[0] == 1) && (sensor[1] == 1) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0))
     error = -3;
   else if ((sensor[0] == 1) && (sensor[1] == 0) && (sensor[2] == 0) && (sensor[3] == 0) && (sensor[4] == 0))
-    error = -5;
-  else if (oldsensorRead[0] != sensor[0] || oldsensorRead[1] != sensor[1] || oldsensorRead[2] != sensor[2] || oldsensorRead[3] != sensor[3] || oldsensorRead[4] != sensor[4])
-  {
-    if (sensor[0] == 1 && sensor[1] == 1 && sensor[2] == 1 && sensor[3] == 1 && sensor[4] == 1)
-    {
-      countT++;
-      SerialBT.print(countT);
-    }
-    for (int i = 0; i < 5; i++) oldsensorRead[i] = sensor[i];
-  }
-  // pre= !pre;
-  // if (aft == pre) countT++;
-  // SerialBT.print(countT);
-  // aft = pre;
+    error = -6;
+  // else if (oldsensorRead[0] != sensor[0] || oldsensorRead[1] != sensor[1] || oldsensorRead[2] != sensor[2] || oldsensorRead[3] != sensor[3] || oldsensorRead[4] != sensor[4])
+  // {
+  //   if (sensor[0] == 1 && sensor[1] == 1 && sensor[2] == 1 && sensor[3] == 1 && sensor[4] == 1)
+  //   {
+  //     countT++;
+  //     SerialBT.print(countT);
+  //   }
+  //   for (int i = 0; i < 5; i++) oldsensorRead[i] = sensor[i];
+  // }
+  // // pre= !pre;
+  // // if (aft == pre) countT++;
+  // // SerialBT.print(countT);
+  // // aft = pre;
 
   if (
       !sensor[0] &&
@@ -86,18 +84,18 @@ void calculate_pid()
 
 void motor_control()
 {
-  calculate_error(); // tính error
-  calculate_pid();   // tính giá trị PID
+  calculate_error(); // tÃ­nh error
+  calculate_pid();   // tÃ­nh giÃ¡ trá»‹ PID
 
   if (error <= 1)
   {
-    speedleft = (speed1 + PID_value);  // tính tốc độ động cơ bên trái
-    speedright = (speed1 - PID_value); // tính tốc độ động cơ bên phải
+    speedleft = (speed1 + PID_value);  // tÃ­nh tá»'c Ä'á»™ Ä'á»™ng cÆ¡ bÃªn trÃ¡i
+    speedright = (speed1 - PID_value); // tÃ­nh tá»'c Ä'á»™ Ä'á»™ng cÆ¡ bÃªn pháº£i
   }
   else
   {
-    speedleft = (speed2 + PID_value);  // tính tốc độ động cơ bên trái
-    speedright = (speed2 - PID_value); // tính tốc độ động cơ bên phải
+    speedleft = (speed2 + PID_value);  // tÃ­nh tá»'c Ä'á»™ Ä'á»™ng cÆ¡ bÃªn trÃ¡i
+    speedright = (speed2 - PID_value); // tÃ­nh tá»'c Ä'á»™ Ä'á»™ng cÆ¡ bÃªn pháº£i
   }
 
   Serial.printf("e: %0.2f - l: %d - r:%d\n", error, speedleft, speedright);
@@ -197,73 +195,43 @@ void loop()
         delay(500);
       }
     }
-    if (countT > 6)
-      maze = true;
-
-    if (maze == true)
-    {
-      motorLeft(0);
-      motorRight(0);
-      while (true)
-      {
-        digitalWrite(12, !digitalWrite);
-        delay(100);
-      }
-    }
 
     if (distanceCM < 35 && abs(error) < 0.5 && distanceCM != 0 && k == 0) // ne vat can
     {
-      delay(300);
+      motorLeft(0);
+      motorRight(0);
+      delay(25);
       motorLeft(200); // xoay phai
       motorRight(-200);
       delay(450);
       motorLeft(0); // ngung
       motorRight(0);
-      delay(300);
+      delay(25);
       motorLeft(200); // di thang
       motorRight(200);
       delay(620);
       motorLeft(0); // ngung
       motorRight(0);
-      delay(300);
+      delay(25);
       motorLeft(-200); // xoay trai
       motorRight(200);
       delay(580);
       motorLeft(0); // ngung
       motorRight(0);
-      delay(300);
+      delay(25);
       motorLeft(200); // di thang
       motorRight(200);
       delay(650);
       motorLeft(0); // ngung
       motorRight(0);
-      delay(300);
+      delay(25);
       motorLeft(-200); // xoay trai
       motorRight(200);
       delay(450);
-      // motorLeft(200); // di thang
-      // motorRight(200);
-      // delay(50);
       k++;
     }
-    //   if (error == 0)
-    //   {
-    //     pre_counter = counter;
-    //     counter = millis();
-    //   }
-    // }
 
-    // if (counter - pre_counter < 100 )
-    // {
-    //   while (true){
-    //   analogWrite(PWMA, 200*0.82);
-    //   analogWrite(PWMB, 200);
-    //   if (error != 0) break;
-    //   }
   }
-
-  if (k >= 6)
-    maze = true;
 
   motor_control();
 
